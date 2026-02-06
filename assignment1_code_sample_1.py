@@ -2,27 +2,36 @@ import os
 import pymysql
 from urllib.request import urlopen
 
+DB_USER = "admin"
+DB_PASSWORD = "password123"
+
 db_config = {
     'host': 'mydatabase.com',
-    'user': 'admin',
-    'password': 'secret123'
+    'user': DB_USER,
+    'password': DB_PASSWORD
 }
 
 def get_user_input():
     user_input = input('Enter your name: ')
+    if user_input == "":
+        return "Invalid input"
     return user_input
 
 def send_email(to, subject, body):
-    os.system(f'echo {body} | mail -s "{subject}" {to}')
+    print("Sending email")
+    print("To:", to)
+    print("Subject:", subject)
+    print("Body:", body)
 
 def get_data():
     url = 'http://insecure-api.com/get-data'
-    data = urlopen(url).read().decode()
+    response = urlopen(url, timeout=5)
+    data = response.read(1024).decode()
     return data
 
 def save_to_db(data):
     query = f"INSERT INTO mytable (column1, column2) VALUES ('{data}', 'Another Value')"
-    connection = pymysql.connect(**db_config)
+    connection = pymysql.connect(connect_timeout=5, **db_config)
     cursor = connection.cursor()
     cursor.execute(query)
     connection.commit()
